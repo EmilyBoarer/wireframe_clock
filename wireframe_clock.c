@@ -11,15 +11,25 @@
 
 #define LED_PIN PICO_DEFAULT_LED_PIN
 
+#define SEGMENT_TOP          0b00000001
+#define SEGMENT_TOP_LEFT     0b00000100
+#define SEGMENT_TOP_RIGHT    0b00000010
+#define SEGMENT_MIDDLE       0b00001000
+#define SEGMENT_BOTTOM_LEFT  0b00100000
+#define SEGMENT_BOTTOM_RIGHT 0b00010000
+#define SEGMENT_BOTTOM       0b10000000
+#define SEGMENT_POINT        0b01000000
+
+
+
 void set_digit(char digit, char value) {
     if (digit >= 0 && digit < 4) {
         // make sure state is reset
         for (int gpio = DIGIT_CONTROL_GPIO_START; gpio < DIGIT_CONTROL_GPIO_START + 4; gpio++) {
             gpio_put(gpio, 0);
         }
-        char segments = 0b11101110;
         for (char x = 0; x < 8; x++) {
-            gpio_put(DIGITS_GPIO_START+x, (segments>>x)&1);
+            gpio_put(DIGITS_GPIO_START+x, (value>>x)&1);
         }
         gpio_put(DIGIT_CONTROL_GPIO_START+digit, 1);
         sleep_ms(LATCH_TIME);
@@ -44,7 +54,7 @@ int main() {
     //init colon and degreese
     gpio_init(COLON_GPIO);
     gpio_set_dir(COLON_GPIO, GPIO_OUT);
-    gpio_put(COLON_GPIO, 1);
+    gpio_put(COLON_GPIO, 0);
     gpio_init(DEGREE_GPIO);
     gpio_set_dir(DEGREE_GPIO, GPIO_OUT);
     gpio_put(DEGREE_GPIO, 0); // TODO change
@@ -55,6 +65,9 @@ int main() {
         gpio_put(gpio, 0);
     }
 
-    set_digit(0, 0);
+    set_digit(0, SEGMENT_TOP|SEGMENT_TOP_LEFT|SEGMENT_BOTTOM_LEFT);
+    set_digit(1, SEGMENT_MIDDLE);
+    set_digit(2, SEGMENT_BOTTOM|SEGMENT_TOP_RIGHT|SEGMENT_BOTTOM_RIGHT);
+    set_digit(3, SEGMENT_POINT);
 
 }
