@@ -49,7 +49,7 @@ void set_digit(char digit, char value) {
 }
 
 int main() {
-    // init serial connection
+    // init usb serial connection
     stdio_init_all();
 
     // init rev indicator LED
@@ -76,12 +76,26 @@ int main() {
         gpio_put(gpio, 0);
     }
 
-    for (int i = 0; i < 10; i++) {
-        set_digit(0, NUMERALS[i]);
-        set_digit(1, NUMERALS[i]);
-        set_digit(2, NUMERALS[i]);
-        set_digit(3, NUMERALS[i]);
+    // clock
+    int x = 0;
+    int y = 0;
+    for (;;) {
+        gpio_put(COLON_GPIO, x%2);
+        // x
+        set_digit(3, NUMERALS[x%10]);
+        set_digit(2, NUMERALS[(x%100)/10]);
+        // y
+        set_digit(1, NUMERALS[y%10]);
+        set_digit(0, NUMERALS[(y%100)/10]);
+        // increase logic
         sleep_ms(1000);
+        x++;
+        if (x > 59) {
+            x = 0;
+            y ++ ;
+        }
     }
+
+
 
 }
